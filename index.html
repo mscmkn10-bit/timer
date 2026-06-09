@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Money Timer Alarm</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#0f172a;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.card{
+    background:#fff;
+    width:400px;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.3);
+}
+
+h1{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+    border:1px solid #ccc;
+    border-radius:10px;
+    box-sizing:border-box;
+    font-size:16px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+.start{
+    background:#16a34a;
+    color:white;
+}
+
+.stop{
+    background:#dc2626;
+    color:white;
+}
+
+.timer{
+    text-align:center;
+    font-size:60px;
+    font-weight:bold;
+    margin:20px 0;
+}
+
+.info{
+    text-align:center;
+    color:#16a34a;
+    font-weight:bold;
+}
+</style>
+
+</head>
+<body>
+
+<div class="card">
+
+<h1>⏰ Money Timer</h1>
+
+<input type="number" id="amount" placeholder="Enter Amount ₹">
+
+<input type="number" id="minutes" placeholder="Enter Minutes">
+
+<div class="timer" id="timer">00:00</div>
+
+<div class="info" id="info"></div>
+
+<button class="start" onclick="startTimer()">Start Timer</button> <button class="stop" onclick="stopTimer()">Stop Timer</button>
+
+</div>
+
+<script>
+
+let countdown = null;
+let alarmInterval = null;
+
+function startTimer(){
+
+    stopTimer();
+
+    const amount = document.getElementById("amount").value;
+    const minutes = document.getElementById("minutes").value;
+
+    if(!amount || !minutes){
+        alert("Enter amount and timer.");
+        return;
+    }
+
+    document.getElementById("info").innerText =
+    "Amount: ₹" + amount;
+
+    let seconds = parseInt(minutes) * 60;
+
+    updateTimer(seconds);
+
+    countdown = setInterval(() => {
+
+        seconds--;
+
+        updateTimer(seconds);
+
+        if(seconds <= 0){
+
+            clearInterval(countdown);
+
+            updateTimer(0);
+
+            startAlarm();
+
+            alert("TIME OVER! Amount ₹" + amount);
+        }
+
+    },1000);
+}
+
+function stopTimer(){
+
+    clearInterval(countdown);
+    clearInterval(alarmInterval);
+
+    document.getElementById("info").innerText = "";
+}
+
+function updateTimer(seconds){
+
+    let mins = Math.floor(seconds / 60);
+    let secs = seconds % 60;
+
+    document.getElementById("timer").innerText =
+    String(mins).padStart(2,"0") + ":" +
+    String(secs).padStart(2,"0");
+}
+
+function startAlarm(){
+
+    alarmInterval = setInterval(() => {
+
+        const ctx =
+        new (window.AudioContext || window.webkitAudioContext)();
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.frequency.value = 2000;
+        osc.type = "square";
+
+        gain.gain.value = 1;
+
+        osc.start();
+
+        setTimeout(() => {
+            osc.stop();
+        }, 300);
+
+    }, 500);
+}
+
+</script>
+
+</body>
+</html>
